@@ -44,7 +44,7 @@ else:
 
 # Continue if valid coordinates
 if lat and lon:
-    hours = st.selectbox("How much time do you have?", [2, 4, 6, 8])
+    hours = st.selectbox("How many hours do you have?", [2, 4, 6, 8])
     if st.button("Find Events"):
         with st.spinner("Searching for events..."):
             now = datetime.utcnow()
