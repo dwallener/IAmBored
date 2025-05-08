@@ -7,7 +7,7 @@ import pytz
 st.set_page_config(page_title="I'm Bored", page_icon="🎯")
 
 # Debug: Confirm secret loads
-st.write("Token preview:", st.secrets.get("PREDICTHQ_TOKEN", "Not found")[:10] + "...")
+#st.write("Token preview:", st.secrets.get("PREDICTHQ_TOKEN", "Not found")[:10] + "...")
 
 st.title("🎯 I'm Bored")
 st.subheader("Find real events near you, right now.")
