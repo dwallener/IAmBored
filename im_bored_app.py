@@ -20,8 +20,18 @@ if city:
     geo_params = {"q": city, "format": "json", "limit": 1}
     try:
         geo_resp = requests.get(geo_url, params=geo_params, timeout=5)
-        geo_data = geo_resp.json()
-        if geo_data:
+
+        if geo_resp.status_code == 200 and geo_resp.content:
+            geo_data = geo_resp.json()
+            if geo_data:
+                lat = float(geo_data[0]["lat"])
+                lon = float(geo_data[0]["lon"])
+                location_info = geo_data[0]["display_name"]
+                st.success(f"📍 Found: {location_info}")
+            else:
+                st.warning("❗ Could not find that city. Try a nearby one.")
+        else:
+            st.error("🌐 Location lookup failed. Try again in a moment.")        if geo_data:
             lat = float(geo_data[0]["lat"])
             lon = float(geo_data[0]["lon"])
             location_info = geo_data[0]["display_name"]
