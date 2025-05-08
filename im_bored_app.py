@@ -31,7 +31,9 @@ if city:
             else:
                 st.warning("❗ Could not find that city. Try a nearby one.")
         else:
-            st.error("🌐 Location lookup failed. Try again in a moment.")        if geo_data:
+            st.error("🌐 Location lookup failed. Try again in a moment.")        
+            
+        if geo_data:
             lat = float(geo_data[0]["lat"])
             lon = float(geo_data[0]["lon"])
             location_info = geo_data[0]["display_name"]
