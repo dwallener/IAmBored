@@ -3,7 +3,7 @@ import requests
 from datetime import datetime, timedelta
 import pytz
 
-# Set up the app
+# App setup
 st.set_page_config(page_title="I'm Bored", page_icon="🎯")
 st.title("🎯 I'm Bored")
 st.subheader("Find real events near you, right now.")
@@ -11,9 +11,10 @@ st.subheader("Find real events near you, right now.")
 # User input
 city = st.text_input("Enter your city", "New York")
 
-# Validate the city with live geocoding
+# Location resolution
 lat = lon = None
 location_info = ""
+geo_data = None
 
 if city:
     geo_url = "https://nominatim.openstreetmap.org/search"
@@ -23,6 +24,7 @@ if city:
 
         if geo_resp.status_code == 200 and geo_resp.content:
             geo_data = geo_resp.json()
+
             if geo_data:
                 lat = float(geo_data[0]["lat"])
                 lon = float(geo_data[0]["lon"])
@@ -31,19 +33,14 @@ if city:
             else:
                 st.warning("❗ Could not find that city. Try a nearby one.")
         else:
-            st.error("🌐 Location lookup failed. Try again in a moment.")        
-            
-        if geo_data:
-            lat = float(geo_data[0]["lat"])
-            lon = float(geo_data[0]["lon"])
-            location_info = geo_data[0]["display_name"]
-            st.success(f"📍 Found: {location_info}")
-        else:
-            st.warning("❗ Could not find that city. Check the spelling or try a nearby town.")
+            st.error("🌐 Location lookup failed. Try again in a moment.")
+
     except Exception as e:
         st.error(f"🌐 Error connecting to location service: {e}")
+else:
+    st.info("Enter a city to get started.")
 
-# Proceed only if a valid location was found
+# Continue only if location found
 if lat and lon:
     hours = st.selectbox("How much time do you have?", [2, 4, 6, 8])
     if st.button("Find Events"):
@@ -51,6 +48,7 @@ if lat and lon:
             now = datetime.now(pytz.utc)
             end_time = now + timedelta(hours=hours)
 
+            # Get your Eventbrite token from secrets
             EVENTBRITE_TOKEN = st.secrets.get("EVENTBRITE_TOKEN", "YOUR_EVENTBRITE_TOKEN")
             eb_url = "https://www.eventbriteapi.com/v3/events/search/"
             eb_params = {
@@ -80,5 +78,3 @@ if lat and lon:
                         st.write(f"📍 {venue}")
                         st.write(f"🕒 Starts at: {start}")
                         st.markdown("---")
-else:
-    st.info("Enter a valid city to get started.")
