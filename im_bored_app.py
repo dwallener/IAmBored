@@ -23,7 +23,7 @@ geo_data = None
 if city:
     geo_url = "https://nominatim.openstreetmap.org/search"
     geo_params = {"q": city, "format": "json", "limit": 1}
-    headers = {"User-Agent": "im-bored-app/0.1 (your@email.com)"}
+    headers = {"User-Agent": "im-bored-app/0.1 (damir00@gmail.com)"}
     try:
         geo_resp = requests.get(geo_url, params=geo_params, headers=headers, timeout=5)
         if geo_resp.status_code == 200 and geo_resp.content:
