@@ -3,36 +3,43 @@ import requests
 from datetime import datetime, timedelta
 import pytz
 
-# Title
+# Set up the app
 st.set_page_config(page_title="I'm Bored", page_icon="🎯")
 st.title("🎯 I'm Bored")
 st.subheader("Find real events near you, right now.")
 
-# Input fields
+# User input
 city = st.text_input("Enter your city", "New York")
-hours = st.selectbox("How much time do you have?", [2, 4, 6, 8])
 
-# API key (store safely in local testing or Streamlit Secrets)
-EVENTBRITE_TOKEN = st.secrets.get("EVENTBRITE_TOKEN", "YOUR_EVENTBRITE_TOKEN")
+# Validate the city with live geocoding
+lat = lon = None
+location_info = ""
 
-if st.button("Find Events"):
-    with st.spinner("Finding cool things nearby..."):
-        # Geocode city to lat/lon
-        geo_url = "https://nominatim.openstreetmap.org/search"
-        geo_params = {"q": city, "format": "json", "limit": 1}
-        geo_resp = requests.get(geo_url, params=geo_params)
+if city:
+    geo_url = "https://nominatim.openstreetmap.org/search"
+    geo_params = {"q": city, "format": "json", "limit": 1}
+    try:
+        geo_resp = requests.get(geo_url, params=geo_params, timeout=5)
         geo_data = geo_resp.json()
-
-        if not geo_data:
-            st.error("❌ Could not find that city. Try another.")
-        else:
+        if geo_data:
             lat = float(geo_data[0]["lat"])
             lon = float(geo_data[0]["lon"])
+            location_info = geo_data[0]["display_name"]
+            st.success(f"📍 Found: {location_info}")
+        else:
+            st.warning("❗ Could not find that city. Check the spelling or try a nearby town.")
+    except Exception as e:
+        st.error(f"🌐 Error connecting to location service: {e}")
 
+# Proceed only if a valid location was found
+if lat and lon:
+    hours = st.selectbox("How much time do you have?", [2, 4, 6, 8])
+    if st.button("Find Events"):
+        with st.spinner("Searching for events..."):
             now = datetime.now(pytz.utc)
             end_time = now + timedelta(hours=hours)
 
-            # Eventbrite call
+            EVENTBRITE_TOKEN = st.secrets.get("EVENTBRITE_TOKEN", "YOUR_EVENTBRITE_TOKEN")
             eb_url = "https://www.eventbriteapi.com/v3/events/search/"
             eb_params = {
                 "location.latitude": lat,
@@ -51,7 +58,7 @@ if st.button("Find Events"):
             else:
                 events = eb_resp.json().get("events", [])
                 if not events:
-                    st.info("😕 No events found for that window.")
+                    st.info("😕 No events found for this time window.")
                 else:
                     for e in events:
                         title = e["name"]["text"]
@@ -61,4 +68,5 @@ if st.button("Find Events"):
                         st.write(f"📍 {venue}")
                         st.write(f"🕒 Starts at: {start}")
                         st.markdown("---")
-
+else:
+    st.info("Enter a valid city to get started.")
