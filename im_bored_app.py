@@ -48,7 +48,8 @@ if lat and lon:
 
         # If return time is logically before leave time, assume it's the next day
         if return_time <= leave_time:
-            return_dt += timedelta(days=1)    else:
+            return_dt += timedelta(days=1)    
+        else:
         # Calculate leave and return as full datetime objects
         leave_dt = datetime.combine(now_local.date(), leave_time)
         return_dt = datetime.combine(now_local.date(), return_time)
