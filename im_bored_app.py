@@ -43,19 +43,15 @@ else:
 # Continue if location found
 if lat and lon:
     now_local = datetime.now()
-    leave_dt = datetime.combine(now_local.date(), leave_time)
-    return_dt = datetime.combine(now_local.date(), return_time)
+    leave_time = st.time_input("🕑 When will you leave?", value=now_local.time())
+    return_time = st.time_input("⏰ When do you need to be back?", value=(now_local + timedelta(hours=4)).time())
 
-    # If return time is logically before leave time, assume it's the next day
-    if return_time <= leave_time:
-        return_dt += timedelta(days=1)    
-    else:
-    # Calculate leave and return as full datetime objects
+    if leave_time and return_time:
         leave_dt = datetime.combine(now_local.date(), leave_time)
         return_dt = datetime.combine(now_local.date(), return_time)
 
-        # Handle overnight return time (e.g., leave at 9 PM, return at 1 AM next day)
-        if return_dt <= leave_dt:
+        # Handle overnight return time (e.g., leave at 9 PM, back by 2 AM next day)
+        if return_time <= leave_time:
             return_dt += timedelta(days=1)
 
         st.info(f"🗓️ Looking for events between **{leave_dt.strftime('%H:%M')}** and **{return_dt.strftime('%H:%M')}**.")
@@ -101,5 +97,5 @@ if lat and lon:
                             st.write(f"🗂️ Category: {category}")
                             st.write(f"🕒 Starts at: {start}")
                             st.markdown("---")
-
-
+    else:
+        st.warning("⚠️ Please set both 'Leave at' and 'Be back by' times.")
